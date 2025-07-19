@@ -20,7 +20,7 @@ if torch.cuda.is_available():
 
 echo ""
 echo "🚀 Launching Phantasia..."
-echo "📍 Access at: http://localhost:7860"
+echo "📍 Access at: http://localhost:7861"
 echo ""
 
 # Launch production app

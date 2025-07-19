@@ -480,13 +480,13 @@ def main():
     app = create_interface()
     
     print("🚀 Launching production interface...")
-    print("📍 URL: http://localhost:7860")
+    print("📍 URL: http://localhost:7861")
     print("🎭 Ready to transform stories into visuals!")
     print()
     
     app.launch(
         server_name="0.0.0.0",
-        server_port=7860,
+        server_port=7861,
         share=False,
         inbrowser=True,
         show_error=True

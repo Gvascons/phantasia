@@ -94,26 +94,24 @@ class TextExtractor:
         # Clean and prepare text
         clean_text = self._clean_text(text)
         
-        # Extract visual elements
-        visual_elements = self._extract_visual_elements(clean_text)
+        # Simple approach: detect key elements directly from text
+        visual_elements = self._detect_key_elements(clean_text)
         
-        # Determine scene type
-        scene_type = self._determine_scene_type(clean_text, visual_elements)
-        
-        # Extract mood
+        # Determine scene type and mood
+        scene_type = self._determine_scene_type(clean_text)
         mood = self._extract_mood(clean_text)
         
-        # Generate main prompt
-        main_prompt = self._generate_main_prompt(clean_text, visual_elements, mood)
+        # Generate main prompt from the actual story content
+        main_prompt = self._generate_natural_prompt(clean_text, mood)
         
         # Determine generation type
-        generation_type = self._determine_generation_type(scene_type, visual_elements)
+        generation_type = self._determine_generation_type(clean_text)
         
         # Generate style hints
         style_hints = self._generate_style_hints(clean_text, mood)
         
         # Generate negative prompt
-        negative_prompt = self._generate_negative_prompt(scene_type, mood)
+        negative_prompt = self._generate_negative_prompt(mood)
         
         return SceneDescription(
             main_prompt=main_prompt,
@@ -145,53 +143,60 @@ class TextExtractor:
         
         return ' '.join(cleaned_words)
     
-    def _extract_visual_elements(self, text: str) -> List[VisualElement]:
-        """Extract visual elements from text using keyword matching"""
+    def _detect_key_elements(self, text: str) -> List[VisualElement]:
+        """Detect key visual elements naturally from the text"""
         elements = []
         words = text.lower().split()
         
-        # Extract characters
-        for keyword in self.character_keywords:
-            if keyword in text.lower():
-                context = self._extract_context(text, keyword)
+        # Look for nouns that are likely visual subjects
+        import re
+        
+        # Find potential characters/creatures (nouns that could be subjects)
+        character_patterns = [
+            r'\b(dragon|knight|wizard|king|queen|princess|prince|warrior|beast|creature|monster|giant|fairy|elf|dwarf|witch|sorcerer|mage|demon|angel|spirit|person|man|woman|child|hero|villain)\b',
+            r'\b(goblin|orc|troll|vampire|werewolf|phoenix|unicorn|centaur|griffin|pegasus)\b'
+        ]
+        
+        for pattern in character_patterns:
+            matches = re.findall(pattern, text.lower())
+            for match in matches:
                 elements.append(VisualElement(
                     type='character',
-                    description=keyword,
-                    importance=0.8,
-                    context=context
+                    description=match,
+                    importance=0.9,
+                    context=self._extract_context(text, match)
                 ))
         
-        # Extract settings
-        for keyword in self.setting_keywords:
-            if keyword in text.lower():
-                context = self._extract_context(text, keyword)
+        # Find settings/locations
+        setting_patterns = [
+            r'\b(mountain|mountains|castle|forest|palace|tower|village|city|ocean|sea|desert|cave|valley|meadow|bridge|garden|dungeon|library|chamber|hall|courtyard|battlefield|kingdom|realm)\b',
+            r'\b(sky|clouds|stars|moon|sun|field|hill|hills|cliff|river|lake|pond|island)\b'
+        ]
+        
+        for pattern in setting_patterns:
+            matches = re.findall(pattern, text.lower())
+            for match in matches:
                 elements.append(VisualElement(
                     type='setting',
-                    description=keyword,
-                    importance=0.9,
-                    context=context
+                    description=match,
+                    importance=0.8,
+                    context=self._extract_context(text, match)
                 ))
         
-        # Extract objects
-        for keyword in self.object_keywords:
-            if keyword in text.lower():
-                context = self._extract_context(text, keyword)
+        # Find notable objects or features
+        object_patterns = [
+            r'\b(fire|flame|sword|shield|crown|ring|armor|cloak|staff|wand|crystal|gem|treasure|door|window|throne)\b',
+            r'\b(wings|scales|claws|teeth|eyes|breath|magic|spell|power)\b'
+        ]
+        
+        for pattern in object_patterns:
+            matches = re.findall(pattern, text.lower())
+            for match in matches:
                 elements.append(VisualElement(
                     type='object',
-                    description=keyword,
+                    description=match,
                     importance=0.6,
-                    context=context
-                ))
-        
-        # Extract actions
-        for keyword in self.action_keywords:
-            if keyword in text.lower():
-                context = self._extract_context(text, keyword)
-                elements.append(VisualElement(
-                    type='action',
-                    description=keyword,
-                    importance=0.7,
-                    context=context
+                    context=self._extract_context(text, match)
                 ))
         
         return elements
@@ -209,18 +214,20 @@ class TextExtractor:
         
         return text[:100]  # Fallback to first 100 chars
     
-    def _determine_scene_type(self, text: str, elements: List[VisualElement]) -> str:
+    def _determine_scene_type(self, text: str) -> str:
         """Determine if scene should be static image or dynamic video"""
-        action_words = ['moving', 'walking', 'running', 'flying', 'dancing', 'fighting', 'flowing']
-        transition_words = ['then', 'next', 'suddenly', 'meanwhile', 'after', 'before']
+        action_words = ['moving', 'walking', 'running', 'flying', 'dancing', 'fighting', 'flowing', 'riding', 'climbing', 'jumping', 'breathing', 'spitting', 'attacking', 'swooping']
+        transition_words = ['then', 'next', 'suddenly', 'meanwhile', 'after', 'before', 'while', 'as']
         
-        action_count = sum(1 for word in action_words if word in text.lower())
-        transition_count = sum(1 for word in transition_words if word in text.lower())
+        text_lower = text.lower()
+        action_count = sum(1 for word in action_words if word in text_lower)
+        transition_count = sum(1 for word in transition_words if text_lower.count(word) >= 1)
         
-        # Count action elements
-        action_elements = len([e for e in elements if e.type == 'action'])
+        # Check for motion verbs
+        motion_verbs = ['flies', 'runs', 'walks', 'moves', 'dances', 'fights', 'rides', 'climbs', 'jumps', 'breathes', 'spits']
+        motion_count = sum(1 for verb in motion_verbs if verb in text_lower)
         
-        if action_count >= 2 or action_elements >= 2:
+        if action_count >= 2 or motion_count >= 1:
             return 'dynamic'
         elif transition_count >= 1:
             return 'transition'
@@ -241,46 +248,68 @@ class TextExtractor:
         else:
             return 'neutral'
     
-    def _generate_main_prompt(self, text: str, elements: List[VisualElement], mood: str) -> str:
-        """Generate main prompt for image/video generation"""
+    def _generate_natural_prompt(self, text: str, mood: str) -> str:
+        """Generate natural prompt directly from story content - completely generalistic"""
         
-        # Start with key visual elements
-        key_elements = sorted(elements, key=lambda x: x.importance, reverse=True)[:3]
+        # Clean the text
+        clean_text = text.lower()
         
-        prompt_parts = []
+        # Remove only the most basic filler words that add no visual value
+        filler_words = ['there once was', 'once upon a time', 'and then', 'so that', 'would', 'could', 'should', 'that', 'the', 'a', 'an', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by']
+        for filler in filler_words:
+            clean_text = clean_text.replace(' ' + filler + ' ', ' ')
         
-        # Add setting first (most important for composition)
-        setting_elements = [e for e in key_elements if e.type == 'setting']
-        if setting_elements:
-            prompt_parts.append(setting_elements[0].description)
+        # Remove punctuation and get all meaningful words
+        import re
+        words = re.findall(r'\b[a-zA-Z]{3,}\b', clean_text)  # Words 3+ chars
         
-        # Add characters
-        character_elements = [e for e in key_elements if e.type == 'character']
-        if character_elements:
-            prompt_parts.append(f"with {character_elements[0].description}")
+        # Filter out common non-visual words (keep it concise for production)
+        skip_words = {
+            # Articles, prepositions, conjunctions
+            'the', 'a', 'an', 'and', 'or', 'but', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'from', 'about', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'up', 'down', 'out', 'off', 'over', 'under', 'again', 'further', 'then', 'once',
+            # Common verbs that don't add visual value
+            'was', 'were', 'had', 'has', 'have', 'been', 'be', 'is', 'are', 'am', 'will', 'would', 'could', 'should', 'can', 'may', 'might', 'must', 'shall', 'do', 'does', 'did', 'get', 'got', 'take', 'took', 'give', 'gave', 'go', 'went', 'come', 'came', 'see', 'saw', 'know', 'knew', 'think', 'thought', 'say', 'said', 'tell', 'told', 'make', 'made', 'let', 'put',
+            # Pronouns and determiners  
+            'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'her', 'its', 'our', 'their', 'this', 'that', 'these', 'those', 'some', 'any', 'all', 'each', 'every', 'no', 'none', 'one', 'two', 'first', 'other', 'another', 'such', 'only', 'own', 'same',
+            # Common adverbs and modifiers
+            'very', 'really', 'quite', 'just', 'still', 'also', 'too', 'so', 'more', 'most', 'much', 'many', 'few', 'little', 'less', 'least', 'well', 'better', 'best', 'worse', 'worst', 'good', 'bad', 'new', 'old', 'long', 'short', 'high', 'low', 'right', 'left', 'next', 'last', 'first', 'second', 'both', 'either', 'neither',
+            # Question words and relatives
+            'what', 'when', 'where', 'who', 'whom', 'whose', 'which', 'why', 'how', 'that', 'who', 'what', 'where', 'when', 'why', 'how',
+            # Time and frequency
+            'now', 'then', 'here', 'there', 'today', 'yesterday', 'tomorrow', 'never', 'always', 'sometimes', 'often', 'usually', 'soon', 'already', 'yet', 'still', 'again', 'once', 'twice',
+            # Discourse markers
+            'yes', 'no', 'not', 'perhaps', 'maybe', 'probably', 'certainly', 'sure', 'indeed', 'however', 'therefore', 'because', 'since', 'although', 'though', 'unless', 'if', 'whether', 'while', 'until', 'as'
+        }
         
-        # Add objects and actions
-        other_elements = [e for e in key_elements if e.type in ['object', 'action']]
-        for element in other_elements[:2]:  # Limit to prevent overcrowding
-            prompt_parts.append(element.description)
+        # Keep only visual/descriptive words
+        visual_words = []
+        for word in words:
+            if word not in skip_words and len(word) >= 3:
+                visual_words.append(word)
         
-        # Add mood
-        if mood != 'neutral':
-            prompt_parts.append(f"{mood} atmosphere")
+        # Take the most important words (limit to prevent overwhelming the prompt)
+        important_words = visual_words[:10]
         
-        # Combine into coherent prompt
-        main_prompt = ', '.join(prompt_parts)
+        # Add mood-based atmosphere
+        if mood and mood != 'neutral':
+            important_words.append(f"{mood} atmosphere")
         
-        # Add quality modifiers
-        main_prompt += ", detailed, high quality, cinematic lighting"
+        # Add basic quality terms
+        important_words.extend(["detailed", "high quality", "cinematic lighting"])
         
-        return main_prompt
+        return ', '.join(important_words)
     
-    def _determine_generation_type(self, scene_type: str, elements: List[VisualElement]) -> str:
-        """Determine whether to generate image or video"""
-        if scene_type == 'dynamic':
-            return 'video'
-        elif scene_type == 'transition':
+    def _determine_generation_type(self, text: str) -> str:
+        """Determine whether to generate image or video based on content"""
+        # Check for strong action/motion indicators
+        action_indicators = ['spit', 'spits', 'breathing', 'flying', 'moving', 'running', 'attacking', 'fighting']
+        
+        text_lower = text.lower()
+        has_strong_action = any(action in text_lower for action in action_indicators)
+        
+        # For now, prefer images for better quality and speed
+        # Can be overridden by user in the interface
+        if has_strong_action:
             return 'video'
         else:
             return 'image'
@@ -305,17 +334,19 @@ class TextExtractor:
         
         return hints
     
-    def _generate_negative_prompt(self, scene_type: str, mood: str) -> str:
+    def _generate_negative_prompt(self, mood: str) -> str:
         """Generate negative prompt to avoid unwanted elements"""
         negative_elements = [
             "blurry", "low quality", "distorted", "ugly", "bad anatomy",
-            "poorly drawn", "extra limbs", "duplicate", "mutation"
+            "poorly drawn", "extra limbs", "duplicate", "mutation", "deformed"
         ]
         
         if mood == 'peaceful':
             negative_elements.extend(["violence", "weapons", "blood", "war"])
         elif mood == 'bright':
             negative_elements.extend(["dark", "gloomy", "horror"])
+        elif mood == 'dark':
+            negative_elements.extend(["bright", "cheerful", "happy"])
         
         return ', '.join(negative_elements)
 
