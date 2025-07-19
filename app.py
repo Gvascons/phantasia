@@ -34,15 +34,19 @@ class NarrationPipeline:
         try:
             scene = self.text_extractor.extract_scene_description(text)
             
-            # Format analysis for display
-            elements_text = f"""**Scene Type:** {scene.scene_type.title()}
-**Mood:** {scene.mood.title()}
-**Generation Type:** {scene.generation_type.title()}
+            # Format analysis for display with better structure
+            elements_text = f"""### 📊 Scene Analysis Results
 
-**Visual Elements Found:**"""
+**🎭 Scene Type:** {scene.scene_type.title()}  
+**🌟 Mood:** {scene.mood.title()}  
+**🎨 Generation Type:** {scene.generation_type.title()}
+
+### 👁️ Visual Elements Detected:"""
             
             for element in scene.visual_elements:
-                elements_text += f"\n• **{element.type.title()}:** {element.description}"
+                icons = {"character": "🧙", "setting": "🏰", "object": "⚔️", "action": "🏃", "mood": "💫"}
+                icon = icons.get(element.type, "•")
+                elements_text += f"\n{icon} **{element.type.title()}:** {element.description} *(importance: {element.importance})*"
             
             return (
                 scene.main_prompt,
@@ -213,11 +217,23 @@ def create_interface():
     }
     
     .analysis-box {
-        background: #f8f9fa;
-        border-left: 4px solid #667eea;
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+        border: 2px solid #667eea;
+        border-left: 6px solid #667eea;
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 12px;
         margin: 15px 0;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+    
+    .analysis-box h3, .analysis-box h4 {
+        color: #2c3e50;
+        margin-top: 0;
+    }
+    
+    .analysis-box strong {
+        color: #4a5568;
+        font-weight: 600;
     }
     
     .status-success {
@@ -240,11 +256,31 @@ def create_interface():
     }
     
     .system-info {
-        background: #e8f4fd;
-        border: 1px solid #b8daff;
-        border-radius: 8px;
-        padding: 15px;
-        margin: 10px 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .system-info h4 {
+        color: white;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+    }
+    
+    .system-info p {
+        margin: 8px 0;
+        font-size: 0.95em;
+        opacity: 0.95;
+    }
+    
+    .system-info strong {
+        color: #fff;
+        font-weight: 600;
     }
     """
     
