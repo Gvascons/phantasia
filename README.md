@@ -4,7 +4,17 @@
 
 A production-ready, local AI pipeline that converts narrative text into high-quality images and videos using state-of-the-art models, optimized for RTX 4060 hardware.
 
-![Demo](https://via.placeholder.com/800x400/667eea/ffffff?text=Phantasia)
+<div align="center">
+
+### ✨ From Story to Visual ✨
+
+**"A brave knight in golden armor stands before a majestic castle"**  
+↓  
+🔍 **AI Analysis** → 🎨 **Visual Generation**  
+↓  
+**Beautiful Images & Videos**
+
+</div>
 
 ## ✨ Features
 
@@ -83,16 +93,24 @@ Based on the analysis, the system:
 - **VRAM Usage**: 6-7GB peak (RTX 4060 compatible)
 - **Quality**: Production-ready visual output
 
-## 🎨 Example Outputs
+## 🎨 Example Workflow
 
 ### Input Story
 > "A brave knight in golden armor rides through an enchanted forest, his sword gleaming in the moonlight as magical creatures watch from the shadows."
 
-### Generated Analysis
-- **Scene Type**: Dynamic
-- **Mood**: Mysterious
-- **Elements**: Knight (character), Forest (setting), Sword (object)
-- **Generation**: Video (16 frames)
+### AI Analysis Results
+- **Scene Type**: Dynamic → Will generate video
+- **Mood**: Mysterious → Dark, atmospheric styling
+- **Visual Elements**: 
+  - Knight (character) - importance: 0.8
+  - Forest (setting) - importance: 0.9  
+  - Sword (object) - importance: 0.6
+- **Generated Prompt**: `forest, with knight, sword, mysterious atmosphere, detailed, high quality, cinematic lighting, fantasy art, magical, ethereal, mystical`
+
+### Output
+- **16-frame interpolated video** showing the knight's journey
+- **High-quality 768x768 images** for static scenes
+- **Professional styling** with mood-appropriate effects
 
 ## 🔧 Configuration
 
