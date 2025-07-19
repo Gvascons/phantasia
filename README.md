@@ -1,10 +1,10 @@
-# 🎨 Narration Visual Pipeline
+# 🎨 Phantasia
 
 **Transform your stories into stunning visuals with AI**
 
 A production-ready, local AI pipeline that converts narrative text into high-quality images and videos using state-of-the-art models, optimized for RTX 4060 hardware.
 
-![Demo](https://via.placeholder.com/800x400/667eea/ffffff?text=Narration+Visual+Pipeline)
+![Demo](https://via.placeholder.com/800x400/667eea/ffffff?text=Phantasia)
 
 ## ✨ Features
 
@@ -26,8 +26,8 @@ A production-ready, local AI pipeline that converts narrative text into high-qua
 
 ```bash
 # 1. Clone and setup
-git clone <repository-url>
-cd narration-visual-pipeline
+git clone https://github.com/Gvascons/phantasia.git
+cd phantasia
 
 # 2. Create environment
 python -m venv narration-env
@@ -105,7 +105,7 @@ Key settings in `config/settings.py`:
 ## 📁 Project Structure
 
 ```
-narration-visual-pipeline/
+phantasia/
 ├── 🎨 app.py                    # Production application
 ├── 🚀 run.sh                    # Launch script
 ├── 🧠 core/                     # Core processing modules

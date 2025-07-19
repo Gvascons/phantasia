@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🎨 NARRATION VISUAL PIPELINE - Production Launch"
-echo "=============================================="
+echo "🎨 PHANTASIA - Production Launch"
+echo "================================="
 
 # Activate environment
 echo "📦 Activating environment..."
@@ -19,7 +19,7 @@ if torch.cuda.is_available():
 "
 
 echo ""
-echo "🚀 Launching Narration Visual Pipeline..."
+echo "🚀 Launching Phantasia..."
 echo "📍 Access at: http://localhost:7860"
 echo ""
 

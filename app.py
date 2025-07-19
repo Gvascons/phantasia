@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Narration Visual Pipeline - Production Application
+Phantasia - Production Application
 Transform your stories into stunning visuals with AI
 """
 
@@ -255,7 +255,7 @@ def create_interface():
             with gr.Column():
                 gr.HTML("""
                 <div class="header">
-                    <h1>🎨 Narration Visual Pipeline</h1>
+                    <h1>🎨 Phantasia</h1>
                     <p>Transform your stories into stunning visuals with AI</p>
                     <p style="font-size: 1em; opacity: 0.8;">Powered by SDXL & Advanced AI Models</p>
                 </div>
@@ -397,7 +397,7 @@ def create_interface():
 def main():
     """Main application entry point"""
     
-    print("🎨 NARRATION VISUAL PIPELINE - Production Version")
+    print("🎨 PHANTASIA - Production Version")
     print("=" * 60)
     print(f"💾 Available VRAM: {get_available_vram():.1f}GB")
     print(f"🎯 Optimized for: RTX 4060")
