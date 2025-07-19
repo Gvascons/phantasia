@@ -34,23 +34,31 @@ class NarrationPipeline:
         try:
             scene = self.text_extractor.extract_scene_description(text)
             
-            # Format analysis for display with better structure
-            elements_text = f"""### 📊 Scene Analysis Results
-
-**🎭 Scene Type:** {scene.scene_type.title()}  
-**🌟 Mood:** {scene.mood.title()}  
-**🎨 Generation Type:** {scene.generation_type.title()}
-
-### 👁️ Visual Elements Detected:"""
+            # Format analysis for display as HTML with proper styling
+            elements_html = f"""<div class="analysis-box">
+            <h3>📊 Scene Analysis Results</h3>
+            
+            <p><strong>🎭 Scene Type:</strong> {scene.scene_type.title()}</p>
+            <p><strong>🌟 Mood:</strong> {scene.mood.title()}</p>
+            <p><strong>🎨 Generation Type:</strong> {scene.generation_type.title()}</p>
+            
+            <h4>👁️ Visual Elements Detected:</h4>
+            <ul>"""
             
             for element in scene.visual_elements:
                 icons = {"character": "🧙", "setting": "🏰", "object": "⚔️", "action": "🏃", "mood": "💫"}
                 icon = icons.get(element.type, "•")
-                elements_text += f"\n{icon} **{element.type.title()}:** {element.description} *(importance: {element.importance})*"
+                elements_html += f"""
+                <li>{icon} <strong>{element.type.title()}:</strong> {element.description} 
+                <em>(importance: {element.importance})</em></li>"""
+            
+            elements_html += """
+            </ul>
+            </div>"""
             
             return (
                 scene.main_prompt,
-                elements_text, 
+                elements_html, 
                 f"✅ Analysis complete! Ready to generate {scene.generation_type}.",
                 gr.update(visible=True)
             )
@@ -236,6 +244,22 @@ def create_interface():
         font-weight: 600;
     }
     
+    .analysis-box ul {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+    
+    .analysis-box li {
+        margin: 8px 0;
+        color: #4a5568;
+        line-height: 1.5;
+    }
+    
+    .analysis-box em {
+        color: #6c757d;
+        font-style: italic;
+    }
+    
     .status-success {
         color: #28a745;
         font-weight: bold;
@@ -366,9 +390,11 @@ def create_interface():
                         lines=2
                     )
                     
-                    analysis_output = gr.Markdown(
-                        value="*Story analysis will appear here after clicking 'Analyze Story'*",
-                        elem_classes=["analysis-box"]
+                    analysis_output = gr.HTML(
+                        value="""<div class="analysis-box">
+                        <h3>📊 Scene Analysis</h3>
+                        <p><em>Story analysis will appear here after clicking 'Analyze Story'</em></p>
+                        </div>"""
                     )
                 
                 # Generated content
